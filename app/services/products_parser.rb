@@ -12,6 +12,8 @@ class ProductsParser
     @products = []
     @error_lines_count = 0
     @total_lines_count = 0
+    @default_category_id = Spree::ShippingCategory.find_by_name('Default').id
+    @stock_location_id = Spree::StockLocation.last.id
   end
 
   def call
@@ -27,23 +29,25 @@ class ProductsParser
 
   def parse_csv!
     CSV.foreach(csv.path, headers: true, col_sep: COLUMN_SEPARATE) do |row|
-      @total_lines_count+=1
+      @total_lines_count += 1
       if row.to_hash.compact.size == 0
-        @error_lines_count+=1 
+        @error_lines_count += 1
         next 
       end
       product = Spree::Product.new(product_attributes(row))
-      product.master.stock_items.build(stock_location: Spree::StockLocation.last, count_on_hand: row['stock_total'])
-      @products << product if product.valid?
-      @error_lines_count+=1 if !product.valid?
+      product.master.stock_items.build(stock_location_id: @stock_location_id, count_on_hand: row['stock_total'])
+      if product.valid?
+        @products << product
+      else
+        @error_lines_count += 1
+      end
     end
   end
 
   def product_attributes(row)
-    default_category_id = Spree::ShippingCategory.find_by_name('Default').id
     attributes = row.to_hash.compact.extract!(*PRODUCT_HEADER)
     attributes['price'] = attributes['price'].to_f
-    attributes['shipping_category_id'] = Spree::ShippingCategory.find_by_name(row['category'])&.id || default_category_id
+    attributes['shipping_category_id'] = Spree::ShippingCategory.find_by_name(row['category'])&.id || @default_category_id
     attributes.except('category', 'stock_total')
   end
 

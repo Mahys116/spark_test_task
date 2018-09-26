@@ -28,7 +28,7 @@ class ProductsParser
   private
 
   def parse_csv!
-    CSV.foreach(csv.path, headers: true, col_sep: COLUMN_SEPARATE) do |row|
+    CSV.foreach(csv.path, headers: true, col_sep: COLUMN_SEPARATE, skip_blanks: true) do |row|
       @total_lines_count += 1
       if row.to_hash.compact.size == 0
         @error_lines_count += 1
@@ -36,6 +36,7 @@ class ProductsParser
       end
       product = Spree::Product.new(product_attributes(row))
       product.master.stock_items.build(stock_location_id: @stock_location_id, count_on_hand: row['stock_total'])
+      product.validate
       if product.valid?
         @products << product
       else

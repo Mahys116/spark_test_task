@@ -33,3 +33,6 @@ en:
   spree:
     import_csv: Import from CSV
     import_csv_header: Import products from CSV
+    flash:
+      import_csv_error: "Couldn't import products, please check CSV file."
+      import_csv_complete: "Import products from CSV complete. Total lines: %{total}, imported: %{imported}, failed: %{failed}"

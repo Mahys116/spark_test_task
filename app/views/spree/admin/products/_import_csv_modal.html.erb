@@ -3,14 +3,18 @@
     <div class='modal-content'>
       <div class='modal-header'>
         <h4 class='modal-title'> 
-          <%=Spree.t(:import_csv_header) %>
+          <%= Spree.t(:import_csv_header) %>
         </h4>
       </div>
-      <div class='modal-body'>
-      </div>
-      <div class='modal-footer'>
-        <button class='btn btn-lg btn-default', data-dismiss='modal'> Close </button>
-      </div>
+      <%= form_tag admin_products_import_path, multipart: true do %>
+        <div class='modal-body'>
+          <%= file_field_tag :file, accept: '.csv', required: true %>
+        </div>
+        <div class='modal-footer'>
+          <button class='btn btn-lg btn-default', data-dismiss='modal'> Close </button>
+          <%= submit_tag Spree.t(:import_csv) , class: 'btn btn-lg btn-primary' %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
